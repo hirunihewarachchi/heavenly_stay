@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boarding Details - HeavenlyStay</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    :root {
+      --primary-yellow: #f59e0b;
+      --deep-blue: #1e3a8a;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg-color); color: var(--text-color); }
+
+    header {
+      background: var(--deep-blue);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { color: var(--primary-yellow); font-size: 1.5rem; font-weight: 800; text-decoration: none; }
+    .nav-links a { color: #fff; text-decoration: none; font-weight: 600; margin-left: 1rem; }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    .details-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+
+    .gallery-img { width: 100%; height: 380px; object-fit: cover; border-radius: 1rem; margin-bottom: 1.5rem; }
+    .card { background: var(--card-bg); border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+
+    .title { font-size: 1.8rem; font-weight: 800; color: var(--deep-blue); margin-bottom: 0.5rem; }
+    .location { color: var(--text-muted); font-size: 1rem; margin-bottom: 1rem; }
+    .price-box { font-size: 1.75rem; font-weight: 800; color: var(--deep-blue); }
+
+    .tag { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 0.3rem 0.8rem; border-radius: 9999px; font-weight: 600; font-size: 0.85rem; margin-right: 0.5rem; }
+
+    .btn-book {
+      width: 100%;
+      background: var(--primary-yellow);
+      color: #000;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .btn-book:hover { background: #d97706; color: #fff; }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+      background: var(--card-bg);
+      color: var(--text-color);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="heavely-web-site.html" class="logo">🏠 HeavenlyStay</a>
+    <div class="nav-links">
+      <a href="heavely-web-site.html">Explore Boardings</a>
+      <a href="user-dashboard.html">My Dashboard</a>
+      <button onclick="document.body.classList.toggle('dark-mode')" style="background:transparent; border:1px solid #fff; color:#fff; padding:0.3rem 0.7rem; border-radius:0.5rem; cursor:pointer;">🌙 Theme</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="details-grid">
+      
+      <!-- Main Content Left -->
+      <div>
+        <img id="boardingImage" class="gallery-img" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1000" alt="Boarding Image">
+        <div id="thumbsGallery" style="display:flex; gap:0.5rem; margin-top:-1rem; margin-bottom:1.5rem; overflow-x:auto;"></div>
+        
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+            <div class="title" id="boardingName" style="margin-bottom:0;">Loading Boarding Place...</div>
+            <button id="btnToggleFavorite" onclick="toggleFavorite()" style="background:rgba(239, 68, 68, 0.1); border:1px solid #fca5a5; color:#ef4444; padding:0.4rem 0.9rem; border-radius:2rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:0.4rem;">
+              <span id="favHeartIcon">🤍</span> <span id="favBtnText">Save to Favorites</span>
+            </button>
+          </div>
+
+          <div class="location" id="boardingLocation">📍 Loading Location...</div>
+          
+          <div id="avgRatingBadge" style="margin-top:0.5rem; margin-bottom:1rem; font-size:0.95rem; font-weight:700; color:var(--deep-blue); display:flex; align-items:center; gap:0.5rem;">
+            <span style="color:#f59e0b; font-size:1.1rem;">⭐ <span id="avgRatingVal">0.0</span></span>
+            <span style="color:var(--text-muted); font-size:0.85rem; font-weight:600;" id="totalReviewsCount">(0 verified tenant reviews)</span>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <span class="tag" id="genderTag">Gender: Any</span>
+            <span class="tag" id="roomCategoryTag">Room Type: Single Room</span>
+            <span class="tag" id="roomsTag">Rooms Available</span>
+            <span class="tag" id="districtTag">District</span>
+          </div>
+
+          <h3 style="margin-bottom:0.5rem; color:var(--deep-blue);">Description</h3>
+          <p id="boardingDesc" style="line-height:1.6; color:var(--text-muted);">Fetching details...</p>
+
+          <h3 style="margin-top:1.5rem; margin-bottom:0.5rem; color:var(--deep-blue);">Facilities Included</h3>
+          <ul id="facilitiesList" style="padding-left:1.2rem; color:var(--text-muted);">
+            <li>Wi-Fi High-Speed Internet</li>
+            <li>Attached Bathroom</li>
+          </ul>
+
+          <!-- Tenant Reviews Section -->
+          <div style="margin-top:2rem; padding-top:1.5rem; border-top:2px solid var(--border-color);">
+            <h3 style="margin-bottom:1rem; color:var(--deep-blue); display:flex; align-items:center; gap:0.5rem;">
+              ⭐ Tenant Reviews & Ratings
+            </h3>
+
+            <!-- Write Review Form -->
+            <div id="writeReviewBox" style="background:var(--input-bg); border:1px solid var(--border-color); border-radius:0.75rem; padding:1.25rem; margin-bottom:1.5rem;">
+              <h4 style="margin-bottom:0.75rem; color:var(--text-color);">Write a Verified Tenant Review</h4>
+              
+              <div id="tenantVerificationNotice" style="display:none; background:#fef3c7; color:#92400e; padding:0.75rem; border-radius:0.5rem; font-size:0.85rem; font-weight:600; margin-bottom:1rem;">
+                🔒 Only verified tenants who have booked & stayed at this boarding can submit a review.
+              </div>
+
+              <form id="reviewForm" onsubmit="event.preventDefault(); submitTenantReview();">
+                <label style="display:block; font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">Your Rating (1 to 5 Stars)</label>
+                <select id="reviewRating" class="form-control" style="width:180px; margin-bottom:1rem;" required>
+                  <option value="5">⭐⭐⭐⭐⭐ (5/5 Excellent)</option>
+                  <option value="4">⭐⭐⭐⭐ (4/5 Very Good)</option>
+                  <option value="3">⭐⭐⭐ (3/5 Average)</option>
+                  <option value="2">⭐⭐ (2/5 Poor)</option>
+                  <option value="1">⭐ (1/5 Terrible)</option>
+                </select>
+
+                <label style="display:block; font-weight:600; font-size:0.85rem; margin-bottom:0.3rem;">Your Review / Experience</label>
+                <textarea id="reviewComment" class="form-control" rows="3" placeholder="Share your experience staying at this boarding..." required></textarea>
+
+                <button type="submit" id="btnSubmitReview" style="background:var(--primary-yellow); color:#000; font-weight:800; border:none; padding:0.6rem 1.25rem; border-radius:0.5rem; cursor:pointer; margin-top:0.75rem;">Submit Verified Review</button>
+              </form>
+            </div>
+
+            <!-- List of Reviews -->
+            <div id="reviewsList" style="display:flex; flex-direction:column; gap:1rem;">
+              <p style="color:var(--text-muted); font-size:0.9rem;">Loading reviews...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Card Right -->
+      <div>
+        <div class="card">
+          <div class="price-box" id="monthlyRent">LKR 0 <span>/ month</span></div>
+          <div style="color:var(--text-muted); font-size:0.9rem; margin-top:0.3rem;" id="keyMoney">Key Money: LKR 0</div>
+          
+          <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+          <form id="bookingForm" onsubmit="event.preventDefault(); submitBookingRequest();">
+            <label style="font-weight:600; font-size:0.9rem;">Move-in Date</label>
+            <input type="date" id="moveInDate" class="form-control" required>
+
+            <label style="font-weight:600; font-size:0.9rem; margin-top:1rem; display:block;">Number of Occupants</label>
+            <input type="number" id="occupants" class="form-control" value="1" min="1" required>
+
+            <label style="font-weight:600; font-size:0.9rem; margin-top:1rem; display:block;">Notes / Requirements for Owner</label>
+            <textarea id="notes" class="form-control" rows="2" placeholder="e.g. Student at university..."></textarea>
+
+            <button type="submit" class="btn-book">Send Booking Request</button>
+          </form>
+
+          <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); font-size:0.85rem; color:var(--text-muted);">
+            <strong>Owner Contact:</strong><br>
+            <span id="ownerName">Verified Owner</span> • <span id="ownerPhone">077-XXXXXXX</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentBoardingId = null;
+
+    $(document).ready(function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentBoardingId = urlParams.get('id') || 1;
+      
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      $('#moveInDate').val(tomorrow.toISOString().split('T')[0]);
+
+      loadBoardingDetails(currentBoardingId);
+      loadReviews(currentBoardingId);
+      checkReviewEligibility(currentBoardingId);
+      checkIsFavorite(currentBoardingId);
+    });
+
+    const BACKEND_BASE_URL = "http://localhost:8080";
+
+    function getFullImageUrl(url) {
+      if (!url) return 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1000';
+      if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+        return url;
+      }
+      return BACKEND_BASE_URL + (url.startsWith('/') ? url : '/' + url);
+    }
+
+    function loadBoardingDetails(id) {
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/boardings/" + id,
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          const b = response.body;
+          $('#boardingName').text(b.name);
+          $('#boardingLocation').text(`📍 ${b.address}, ${b.district}, ${b.province}`);
+          $('#boardingDesc').text(b.description || 'No detailed description provided.');
+          $('#monthlyRent').html(`LKR ${(b.monthlyRent || 0).toLocaleString()} <span>/ month</span>`);
+          $('#keyMoney').text(`Key Money Deposit: LKR ${(b.keyMoney || 0).toLocaleString()} (+ 5% platform fee)`);
+          const isShared = b.roomCategory === 'SHARED';
+          const bedsPerRoom = b.bedsPerRoom || (isShared ? 2 : 1);
+          const availBeds = (b.availableBeds !== undefined && b.availableBeds !== null) ? b.availableBeds : (b.availableRooms * bedsPerRoom);
+          const totalBeds = b.totalBeds || (b.totalRooms * bedsPerRoom);
+
+          $('#genderTag').text(`Gender: ${b.genderPreference}`);
+          $('#roomCategoryTag').text(`Room Type: ${isShared ? `Shared (${bedsPerRoom} Beds/Room)` : 'Single Room'}`);
+
+          if (availBeds <= 0 || b.availableRooms <= 0) {
+            $('#roomsTag').text(`❌ FULLY BOOKED (0 Beds Remaining)`).css({'background':'#fee2e2', 'color':'#991b1b'});
+            $('.btn-book').prop('disabled', true).css({'background':'#94a3b8', 'cursor':'not-allowed'}).text('❌ Fully Booked - No Available Beds');
+          } else if (isShared) {
+            $('#roomsTag').text(`🛏️ ${availBeds} / ${totalBeds} Beds Available`);
+          } else {
+            $('#roomsTag').text(`🚪 ${b.availableRooms} / ${b.totalRooms} Rooms Available`);
+          }
+          $('#districtTag').text(`District: ${b.district}`);
+          $('#ownerName').text(b.ownerName || 'Verified Owner');
+          $('#ownerPhone').text(b.ownerPhone || '077-1234567');
+
+          const coverUrl = getFullImageUrl(b.coverImageUrl);
+          $('#boardingImage').attr('src', coverUrl);
+
+          if (b.imageUrls && b.imageUrls.length > 0) {
+            let thumbHtml = "";
+            for (const imgUrl of b.imageUrls) {
+              const fullUrl = getFullImageUrl(imgUrl);
+              thumbHtml += `<img src="${fullUrl}" style="width:75px; height:55px; object-fit:cover; border-radius:0.4rem; cursor:pointer; border:2px solid #cbd5e1;" onclick="$('#boardingImage').attr('src', '${fullUrl}')">`;
+            }
+            $('#thumbsGallery').html(thumbHtml);
+          }
+
+          if (b.facilities && b.facilities.length > 0) {
+            let list = "";
+            for (const f of b.facilities) {
+              list += `<li>${f}</li>`;
+            }
+            $('#facilitiesList').html(list);
+          }
+        }
+      });
+    }
+
+    function submitBookingRequest() {
+      let seekerId = localStorage.getItem('userId');
+      if (!seekerId) {
+        alert('Please log in before sending a booking request!');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const obj = JSON.stringify({
+        "boardingId": parseInt(currentBoardingId),
+        "seekerId": parseInt(seekerId),
+        "moveInDate": $('#moveInDate').val(),
+        "occupantCount": parseInt($('#occupants').val()),
+        "notes": $('#notes').val()
+      });
+
+      $.ajax({
+        url: "http://localhost:8080/v1/bookings",
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        data: obj,
+        success: function(response) {
+          alert("Booking request sent successfully to owner! Track status in your Dashboard.");
+          window.location.href = "user-dashboard.html";
+        },
+        error: function(response) {
+          alert("Failed to send booking request: " + (response.responseJSON ? response.responseJSON.message : "Error"));
+        }
+      });
+    }
+
+    function loadReviews(boardingId) {
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/reviews/boarding/" + boardingId,
+        type: "GET",
+        contentType: "application/json",
+        success: function(response) {
+          if (response.body) {
+            const data = response.body;
+            $('#avgRatingVal').text((data.avgRating || 0.0).toFixed(1));
+            $('#totalReviewsCount').text(`(${data.totalReviews || 0} verified tenant reviews)`);
+
+            let html = "";
+            if (data.reviews && data.reviews.length > 0) {
+              for (const r of data.reviews) {
+                const stars = "⭐".repeat(r.rating || 5);
+                const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
+                html += `
+                  <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:0.6rem; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.03);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                      <div>
+                        <strong>👤 ${r.reviewerName || 'Tenant'}</strong>
+                        <span style="color:#16a34a; font-size:0.75rem; font-weight:700; margin-left:0.5rem; background:#dcfce7; padding:0.15rem 0.4rem; border-radius:0.3rem;">✔ Verified Tenant</span>
+                      </div>
+                      <span style="font-size:0.8rem; color:var(--text-muted);">${dateStr}</span>
+                    </div>
+                    <div style="color:#f59e0b; margin-bottom:0.4rem;">${stars} (${r.rating}/5)</div>
+                    <p style="color:var(--text-color); font-size:0.9rem; line-height:1.4;">${r.comment}</p>
+                  </div>
+                `;
+              }
+            } else {
+              html = '<p style="color:var(--text-muted); font-size:0.9rem;">No reviews yet for this boarding. Be the first verified tenant to leave a review!</p>';
+            }
+            $('#reviewsList').html(html);
+          }
+        }
+      });
+    }
+
+    function checkReviewEligibility(boardingId) {
+      const userId = localStorage.getItem("userId") || 1;
+      $.ajax({
+        url: `${BACKEND_BASE_URL}/v1/reviews/can-review?userId=${userId}&boardingId=${boardingId}`,
+        type: "GET",
+        contentType: "application/json",
+        success: function(response) {
+          if (response.body && response.body.canReview) {
+            $('#tenantVerificationNotice').hide();
+            $('#reviewForm').show();
+          } else {
+            $('#tenantVerificationNotice').show();
+            $('#reviewForm').hide();
+          }
+        }
+      });
+    }
+
+    function submitTenantReview() {
+      const userId = localStorage.getItem("userId") || 1;
+      const rating = parseInt($('#reviewRating').val());
+      const comment = $('#reviewComment').val().trim();
+
+      if (!comment) {
+        alert("Please write a comment for your review!");
+        return;
+      }
+
+      const payload = JSON.stringify({
+        "boardingId": parseInt(currentBoardingId),
+        "reviewerId": parseInt(userId),
+        "rating": rating,
+        "comment": comment
+      });
+
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/reviews",
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        data: payload,
+        success: function(response) {
+          alert("Thank you! Your verified tenant review has been posted.");
+          $('#reviewComment').val('');
+          loadReviews(currentBoardingId);
+        },
+        error: function(err) {
+          alert("Failed to submit review: " + (err.responseJSON ? err.responseJSON.message : "Error"));
+        }
+      });
+    }
+
+    function checkIsFavorite(boardingId) {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      $.ajax({
+        url: `${BACKEND_BASE_URL}/v1/favorites/check?userId=${userId}&boardingId=${boardingId}`,
+        type: "GET",
+        contentType: "application/json",
+        success: function(response) {
+          if (response.body && response.body.isFavorite) {
+            $('#favHeartIcon').text('❤️');
+            $('#favBtnText').text('Saved in Favorites');
+            $('#btnToggleFavorite').css({'background':'#fee2e2', 'border-color':'#f87171'});
+          } else {
+            $('#favHeartIcon').text('🤍');
+            $('#favBtnText').text('Save to Favorites');
+            $('#btnToggleFavorite').css({'background':'rgba(239, 68, 68, 0.1)', 'border-color':'#fca5a5'});
+          }
+        }
+      });
+    }
+
+    function toggleFavorite() {
+      const userId = localStorage.getItem("userId") || 1;
+      $.ajax({
+        url: `${BACKEND_BASE_URL}/v1/favorites/toggle?userId=${userId}&boardingId=${currentBoardingId}`,
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          if (response.body && response.body.isFavorite) {
+            alert("Boarding saved to your Wishlist/Favorites!");
+          } else {
+            alert("Boarding removed from your Favorites.");
+          }
+          checkIsFavorite(currentBoardingId);
+        }
+      });
+    }
+  </script>
+
+  <!-- Floating AI Chatbot Widget -->
+  <div id="aiChatbotContainer" style="position: fixed; bottom: 25px; right: 25px; z-index: 99999; font-family: 'Segoe UI', system-ui, sans-serif;">
+    <button id="aiChatbotToggleBtn" onclick="toggleAiChatbot()" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; border: none; width: 62px; height: 62px; border-radius: 50%; box-shadow: 0 10px 25px rgba(30, 58, 138, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; transition: transform 0.2s, box-shadow 0.2s;" title="HeavenlyStay AI Assistant">
+      🤖
+    </button>
+
+    <div id="aiChatbotWindow" style="display: none; width: 380px; max-width: 92vw; height: 530px; background: #ffffff; border-radius: 1.25rem; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 1px solid #cbd5e1; flex-direction: column; overflow: hidden; position: absolute; bottom: 75px; right: 0;">
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #1e3a8a, #1e293b); color: #fff; padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #f59e0b;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <span style="font-size: 1.6rem;">🤖</span>
+          <div>
+            <div style="font-weight: 800; font-size: 1rem; color: #f59e0b;">HeavenlyStay AI Assistant</div>
+            <div style="font-size: 0.72rem; color: #cbd5e1;">⚡ Strictly Grounded in Database</div>
+          </div>
+        </div>
+        <button onclick="toggleAiChatbot()" style="background: transparent; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; opacity: 0.8;">✕</button>
+      </div>
+
+      <!-- Messages Container -->
+      <div id="aiChatbotMessages" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; background: #f8fafc;">
+        <div style="background: #e2e8f0; color: #1e293b; padding: 0.85rem 1rem; border-radius: 1rem 1rem 1rem 0; max-width: 88%; font-size: 0.88rem; line-height: 1.45; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+          👋 Hi! I am your <strong>HeavenlyStay AI Assistant</strong>.<br>Ask me about available boardings, rents, locations, single/shared room availability, key money deposits, and platform policies!
+        </div>
+      </div>
+
+      <!-- Quick Action Pills -->
+      <div id="aiChatbotPills" style="padding: 0.5rem 0.75rem; display: flex; gap: 0.4rem; overflow-x: auto; background: #ffffff; border-top: 1px solid #e2e8f0;">
+        <button onclick="sendAiPill('💡 Boardings under LKR 15,000')" style="white-space: nowrap; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.35rem 0.65rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">💡 Under 15k</button>
+        <button onclick="sendAiPill('📍 Boardings in Colombo')" style="white-space: nowrap; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.35rem 0.65rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">📍 Colombo</button>
+        <button onclick="sendAiPill('🛏️ Available Shared Rooms')" style="white-space: nowrap; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.35rem 0.65rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🛏️ Shared Rooms</button>
+        <button onclick="sendAiPill('🔑 How does Key Money work?')" style="white-space: nowrap; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 0.35rem 0.65rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🔑 Key Money</button>
+      </div>
+
+      <!-- Input Footer -->
+      <form onsubmit="event.preventDefault(); sendAiChatMessage();" style="display: flex; padding: 0.75rem; background: #ffffff; border-top: 1px solid #cbd5e1; gap: 0.5rem; align-items: center;">
+        <input type="text" id="aiChatInput" placeholder="Ask about boardings, rent..." style="flex: 1; padding: 0.65rem 0.95rem; border: 1px solid #cbd5e1; border-radius: 1.5rem; font-size: 0.88rem; outline: none;">
+        <button type="submit" style="background: #f59e0b; color: #000; font-weight: 700; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">➤</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function toggleAiChatbot() {
+      const win = document.getElementById('aiChatbotWindow');
+      if (win.style.display === 'none' || win.style.display === '') {
+        win.style.display = 'flex';
+        document.getElementById('aiChatInput').focus();
+      } else {
+        win.style.display = 'none';
+      }
+    }
+
+    function sendAiPill(text) {
+      document.getElementById('aiChatInput').value = text;
+      sendAiChatMessage();
+    }
+
+    function sendAiChatMessage() {
+      const input = document.getElementById('aiChatInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const msgContainer = document.getElementById('aiChatbotMessages');
+      const userBubble = document.createElement('div');
+      userBubble.style.cssText = 'background: #1e3a8a; color: #fff; padding: 0.75rem 1rem; border-radius: 1rem 1rem 0 1rem; max-width: 85%; font-size: 0.88rem; align-self: flex-end; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+      userBubble.textContent = msg;
+      msgContainer.appendChild(userBubble);
+
+      input.value = '';
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+
+      const typingBubble = document.createElement('div');
+      typingBubble.id = 'aiTypingIndicator';
+      typingBubble.style.cssText = 'background: #e2e8f0; color: #64748b; padding: 0.6rem 0.9rem; border-radius: 1rem; max-width: 60%; font-size: 0.8rem; font-style: italic; align-self: flex-start;';
+      typingBubble.textContent = '⚡ Querying database...';
+      msgContainer.appendChild(typingBubble);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+
+      $.ajax({
+        url: "http://localhost:8080/v1/chatbot/query",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ userMessage: msg }),
+        success: function(res) {
+          $('#aiTypingIndicator').remove();
+          if (res.body) {
+            appendAiResponse(res.body);
+          }
+        },
+        error: function() {
+          $('#aiTypingIndicator').remove();
+          const errBubble = document.createElement('div');
+          errBubble.style.cssText = 'background: #fee2e2; color: #991b1b; padding: 0.75rem 1rem; border-radius: 1rem; max-width: 85%; font-size: 0.85rem; align-self: flex-start;';
+          errBubble.textContent = '❌ Could not connect to AI Assistant. Please check if backend server is running.';
+          msgContainer.appendChild(errBubble);
+          msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+      });
+    }
+
+    function appendAiResponse(data) {
+      const msgContainer = document.getElementById('aiChatbotMessages');
+      const aiBubble = document.createElement('div');
+      aiBubble.style.cssText = 'background: #ffffff; color: #1e293b; padding: 0.85rem 1rem; border-radius: 1rem 1rem 1rem 0; max-width: 88%; font-size: 0.88rem; line-height: 1.45; align-self: flex-start; border: 1px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.06);';
+
+      let formattedText = data.replyMessage
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+
+      aiBubble.innerHTML = formattedText;
+
+      if (data.matchedBoardings && data.matchedBoardings.length > 0) {
+        const cardsDiv = document.createElement('div');
+        cardsDiv.style.cssText = 'display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.6rem;';
+
+        data.matchedBoardings.forEach(b => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.6rem; padding: 0.6rem; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;';
+          card.innerHTML = `
+            <div>
+              <div style="font-weight: 700; color: #1e3a8a;">${b.name}</div>
+              <div style="color: #64748b;">📍 ${b.district || 'Location'} • LKR ${b.monthlyRent}/mo</div>
+            </div>
+            <a href="boarding-details.html?id=${b.boardingId}" target="_blank" style="background: #f59e0b; color: #000; text-decoration: none; padding: 0.3rem 0.6rem; border-radius: 0.4rem; font-weight: 700; font-size: 0.75rem; align-self: center;">View</a>
+          `;
+          cardsDiv.appendChild(card);
+        });
+        aiBubble.appendChild(cardsDiv);
+      }
+
+      msgContainer.appendChild(aiBubble);
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+  </script>
+</body>
+</html>

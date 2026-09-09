@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - HeavenlyStay</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    :root {
+      --primary-yellow: #f59e0b;
+      --deep-blue: #1e3a8a;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    body.dark-mode {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg-color); color: var(--text-color); }
+
+    header {
+      background: var(--deep-blue);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { color: var(--primary-yellow); font-size: 1.5rem; font-weight: 800; text-decoration: none; }
+
+    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--primary-yellow);
+    }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--deep-blue); }
+    .stat-label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; font-weight: 600; }
+
+    .card { background: var(--card-bg); border-radius: 1rem; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 2rem; }
+    h2 { margin-bottom: 1.25rem; color: var(--deep-blue); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background: var(--deep-blue); color: #fff; }
+
+    .btn-approve { background: #16a34a; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; margin-right: 0.3rem; }
+    .btn-reject { background: #dc2626; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; }
+    .btn-restrict { background: #ea580c; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 0.375rem; cursor: pointer; font-weight: 600; }
+
+    .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="heavely-web-site.html" class="logo">🛡️ HeavenlyStay Admin Portal</a>
+    <div>
+      <button onclick="document.body.classList.toggle('dark-mode')" style="background:transparent; border:1px solid #fff; color:#fff; padding:0.3rem 0.7rem; border-radius:0.5rem; cursor:pointer;">🌙 Theme</button>
+      <button onclick="localStorage.clear(); window.location.href='login.html'" style="background:#dc2626; color:#fff; border:none; padding:0.3rem 0.7rem; border-radius:0.5rem; cursor:pointer; margin-left:1rem;">Logout Admin</button>
+    </div>
+  </header>
+
+  <div class="container">
+    
+    <!-- System Analytics Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="statUsers">0</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#3b82f6;">
+        <div class="stat-number" id="statPending">0</div>
+        <div class="stat-label">Pending Approval Ads</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#16a34a;">
+        <div class="stat-number" id="statApproved">0</div>
+        <div class="stat-label">Published Approved Ads</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#8b5cf6;">
+        <div class="stat-number" id="statListingRevenue">LKR 0</div>
+        <div class="stat-label">Total Listing Revenue</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#ec4899;">
+        <div class="stat-number" id="statCommission">LKR 0</div>
+        <div class="stat-label">Total Key Money Commission</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#f59e0b;">
+        <div class="stat-number" id="statEarn">LKR 0</div>
+        <div class="stat-label">Total Earned</div>
+      </div>
+    </div>
+
+    <!-- Pending Advertisement Approvals -->
+    <div class="card">
+      <h2>Pending Advertisement Approvals</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>District</th>
+            <th>Rent</th>
+            <th>Listing Fee Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pendingAdsTbody">
+          <tr><td colspan="5" style="text-align:center;">Loading pending approval queue...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Manage Published Advertisements -->
+    <div class="card">
+      <h2>Manage All Advertisements</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Ad ID</th>
+            <th>Title</th>
+            <th>District</th>
+            <th>Rent</th>
+            <th>Status</th>
+            <th>Owner</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="allBoardingsTbody">
+          <tr><td colspan="7" style="text-align:center;">Loading all advertisements...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- User Management -->
+    <div class="card">
+      <h2>Registered System Users</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Restriction Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersTbody">
+          <tr><td colspan="7" style="text-align:center;">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add New Admin -->
+    <div class="card" style="max-width: 500px;">
+      <h2>Add New Administrator</h2>
+      <form onsubmit="event.preventDefault(); addNewAdmin();">
+        <input type="text" id="adminUsername" class="form-control" placeholder="Admin Username" required>
+        <input type="email" id="adminEmail" class="form-control" placeholder="Admin Email" required>
+        <input type="password" id="adminPassword" class="form-control" placeholder="Password" required>
+        <button type="submit" style="background:var(--primary-yellow); color:#000; font-weight:700; border:none; padding:0.75rem 1.5rem; border-radius:0.5rem; cursor:pointer; width:100%;">Create Admin Account</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      loadStats();
+      loadPendingAds();
+      loadAllBoardings();
+      loadUsers();
+    });
+
+    function loadStats() {
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/stats",
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          $('#statUsers').text(response.body.totalUsers || 0);
+          $('#statPending').text(response.body.pendingApprovals || 0);
+          $('#statApproved').text(response.body.approvedBoardings || 0);
+          $('#statListingRevenue').text('LKR ' + (response.body.totalListingRevenue || 0).toLocaleString());
+          $('#statCommission').text('LKR ' + (response.body.totalCommission || 0).toLocaleString());
+          $('#statEarn').text('LKR ' + (response.body.totalEarn || 0).toLocaleString());
+        }
+      });
+    }
+
+    function loadPendingAds() {
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/pending-boardings",
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          let html = "";
+          if (response.body && response.body.length > 0) {
+            for (const ad of response.body) {
+              html += `
+                <tr>
+                  <td><strong>${ad.name}</strong></td>
+                  <td>${ad.district}</td>
+                  <td>LKR ${ad.monthlyRent.toLocaleString()}</td>
+                  <td><span style="color:#16a34a; font-weight:700;">LKR 1,000 Paid</span></td>
+                  <td>
+                    <button class="btn-approve" onclick="approveAd(${ad.boardingId})">Approve & Publish</button>
+                    <button class="btn-reject" onclick="rejectAd(${ad.boardingId})">Reject</button>
+                  </td>
+                </tr>
+              `;
+            }
+          } else {
+            html = '<tr><td colspan="5" style="text-align:center;">No pending ad approvals right now.</td></tr>';
+          }
+          $('#pendingAdsTbody').html(html);
+        }
+      });
+    }
+
+    function approveAd(id) {
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/approve-boarding/" + id,
+        type: "PUT",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          alert("Boarding ad approved and published live!");
+          loadStats();
+          loadPendingAds();
+          loadAllBoardings();
+        }
+      });
+    }
+
+    function loadAllBoardings() {
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/all-boardings",
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          let html = "";
+          if (response.body && response.body.length > 0) {
+            for (const b of response.body) {
+              let statusBadge = `<span style="color:#16a34a; font-weight:700;">${b.status}</span>`;
+              if (b.status === 'PENDING_APPROVAL') statusBadge = `<span style="color:#f59e0b; font-weight:700;">PENDING</span>`;
+              if (b.status === 'REJECTED') statusBadge = `<span style="color:#dc2626; font-weight:700;">REJECTED</span>`;
+
+              let cleanName = (b.name || '').replace(/'/g, "\\'");
+              html += `
+                <tr>
+                  <td>#${b.boardingId}</td>
+                  <td><strong>${b.name}</strong></td>
+                  <td>${b.district || '-'}</td>
+                  <td>LKR ${b.monthlyRent ? b.monthlyRent.toLocaleString() : 0}</td>
+                  <td>${statusBadge}</td>
+                  <td>${b.ownerName || ('User #' + (b.ownerId || ''))}</td>
+                  <td>
+                    <button class="btn-reject" onclick="deleteBoardingAd(${b.boardingId}, '${cleanName}')">
+                      🗑️ Delete Ad
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }
+          } else {
+            html = '<tr><td colspan="7" style="text-align:center;">No advertisements found in database.</td></tr>';
+          }
+          $('#allBoardingsTbody').html(html);
+        }
+      });
+    }
+
+    function deleteBoardingAd(id, name) {
+      if (!confirm(`Are you sure you want to delete advertisement "${name}" permanently?`)) return;
+
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/boardings/" + id,
+        type: "DELETE",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          alert("Advertisement deleted successfully!");
+          loadStats();
+          loadPendingAds();
+          loadAllBoardings();
+        },
+        error: function(err) {
+          alert("Failed to delete advertisement: " + (err.responseJSON ? err.responseJSON.message : "Error"));
+        }
+      });
+    }
+
+    function rejectAd(id) {
+      let reason = prompt('Enter reason for rejection:', 'Does not fulfill guidelines');
+      if (!reason) return;
+
+      $.ajax({
+        url: `http://localhost:8080/v1/admin/reject-boarding/${id}?feedback=${encodeURIComponent(reason)}`,
+        type: "PUT",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          alert("Boarding ad rejected.");
+          loadStats();
+          loadPendingAds();
+        }
+      });
+    }
+
+    function loadUsers() {
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/users",
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          let html = "";
+          if (response.body && response.body.length > 0) {
+            for (const u of response.body) {
+              html += `
+                <tr>
+                  <td>#${u.userId}</td>
+                  <td><strong>${u.userName}</strong></td>
+                  <td>${u.email || '-'}</td>
+                  <td>${u.phone || '-'}</td>
+                  <td>${u.userRoles}</td>
+                  <td>${u.isRestricted ? '<span style="color:#dc2626; font-weight:700;">Restricted</span>' : '<span style="color:#16a34a;">Active</span>'}</td>
+                  <td>
+                    <button class="btn-restrict" onclick="toggleRestrict(${u.userId}, ${!u.isRestricted})">
+                      ${u.isRestricted ? 'Unrestrict' : 'Restrict'}
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }
+          }
+          $('#usersTbody').html(html);
+        }
+      });
+    }
+
+    function toggleRestrict(userId, restrict) {
+      $.ajax({
+        url: `http://localhost:8080/v1/admin/users/${userId}/restrict?restrict=${restrict}`,
+        type: "PUT",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          alert("User restriction status updated.");
+          loadUsers();
+        }
+      });
+    }
+
+    function addNewAdmin() {
+      const obj = JSON.stringify({
+        "userName": $('#adminUsername').val().trim(),
+        "email": $('#adminEmail').val().trim(),
+        "password": $('#adminPassword').val().trim()
+      });
+
+      $.ajax({
+        url: "http://localhost:8080/v1/admin/add-admin",
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        data: obj,
+        success: function(response) {
+          alert("New Admin created!");
+          loadUsers();
+          loadStats();
+          $('#adminUsername').val('');
+          $('#adminEmail').val('');
+          $('#adminPassword').val('');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

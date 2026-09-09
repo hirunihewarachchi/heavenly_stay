@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - HeavenlyStay</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --text-muted: #64748b;
+      --primary-yellow: #f59e0b;
+      --primary-yellow-hover: #d97706;
+      --deep-blue: #1e3a8a;
+      --border-color: #e2e8f0;
+      --input-bg: #f8fafc;
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    body.dark-mode {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --input-bg: #0f172a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .signup-card {
+      background: var(--card-bg);
+      color: var(--text-color);
+      width: 100%;
+      max-width: 480px;
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .brand { text-align: center; margin-bottom: 1.5rem; }
+    .brand h1 { color: var(--primary-yellow); font-size: 2rem; font-weight: 800; }
+    .brand p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      color: var(--text-color);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--primary-yellow);
+      color: #000;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover { background: var(--primary-yellow-hover); color: #fff; }
+
+    .footer-links { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); }
+    .footer-links a { color: var(--primary-yellow); text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="signup-card">
+    <div class="brand">
+      <h1>🏠 HeavenlyStay</h1>
+      <p>Create your free HeavenlyStay user account</p>
+    </div>
+
+    <form id="signupForm" onsubmit="event.preventDefault(); handleSignup();">
+      <div class="form-group">
+        <label for="userName">Username</label>
+        <input type="text" id="userName" class="form-input" placeholder="e.g. kamal_perera" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" class="form-input" placeholder="e.g. kamal@gmail.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" class="form-input" placeholder="e.g. 0771234567" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" class="form-input" placeholder="At least 6 characters" required minlength="6">
+      </div>
+
+      <button type="submit" class="btn-submit">Create Account</button>
+    </form>
+
+    <div class="footer-links">
+      Already registered? <a href="login.html">Login Here</a>
+    </div>
+  </div>
+
+  <script>
+    function handleSignup() {
+      let userName = $('#userName').val().trim();
+      let email = $('#email').val().trim();
+      let phone = $('#phone').val().trim();
+      let password = $('#password').val().trim();
+
+      const obj = JSON.stringify({
+        "userName": userName,
+        "email": email,
+        "phone": phone,
+        "userRoles": "USER", // All registrations are automatically USER role
+        "password": password
+      });
+
+      $.ajax({
+        url: "http://localhost:8080/v1/auth/signup",
+        type: "POST",
+        contentType: "application/json",
+        data: obj,
+        success: function(response) {
+          alert("Registration Successful! Redirecting to login page...");
+          window.location.href = "login.html";
+        },
+        error: function(response) {
+          alert("Error registering user: " + (response.responseJSON ? response.responseJSON.message : "Error"));
+        }
+      });
+    }
+  </script>
+</body>
+</html>
