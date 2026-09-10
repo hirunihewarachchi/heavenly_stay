@@ -164,7 +164,8 @@
             contentType: 'application/json',
             data: obj,
             success: function (response){
-                console.log("Login response:", response);
+                console.log("Login response:", re
+              sponse);
 
                 if (!response || response.status !== 200) {
                     let errorMsg = response.message || "Username or password incorrect, try again.";

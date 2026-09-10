@@ -249,16 +249,41 @@ public class ChatbotServiceImpl implements ChatbotService {
         }
     }
 
+    // Generic words that appear in boarding names but are too common to use for matching.
+    // A query like "show me boarding in Colombo" should NOT match the first boarding
+    // whose name contains the word "boarding", "room", "house", etc.
+    private static final Set<String> GENERIC_NAME_WORDS = Set.of(
+            "boarding", "room", "house", "stay", "home", "villa", "hostel",
+            "lodge", "place", "inn", "residence", "residency", "flat", "apartment",
+            "the", "and", "for", "new", "sri", "with", "from", "near", "road",
+            "lane", "street", "floor", "block", "city", "town", "area"
+    );
+
     private Boarding findMatchingBoarding(String msg, List<Boarding> boardings) {
         for (Boarding b : boardings) {
             if (b.getName() != null && !b.getName().trim().isEmpty()) {
                 String nameLower = b.getName().toLowerCase();
+
+                // 1. Full name match (strongest signal)
                 if (msg.contains(nameLower)) return b;
-                // Also match significant words in boarding name (e.g. "sunset", "royal", "green")
+
+                // 2. Require at least 2 significant (non-generic) words from the boarding
+                //    name to appear in the message before claiming a specific match.
                 String[] words = nameLower.split("\\s+");
+                int significantMatchCount = 0;
                 for (String w : words) {
-                    if (w.length() > 3 && msg.contains(w)) return b;
+                    if (w.length() > 3 && !GENERIC_NAME_WORDS.contains(w) && msg.contains(w)) {
+                        significantMatchCount++;
+                    }
                 }
+                if (significantMatchCount >= 2) return b;
+
+                // 3. If the boarding name has only ONE significant non-generic word and it
+                //    appears in the message, also match (e.g. a boarding simply named "Sunset").
+                long totalSignificantWords = Arrays.stream(words)
+                        .filter(w -> w.length() > 3 && !GENERIC_NAME_WORDS.contains(w))
+                        .count();
+                if (totalSignificantWords == 1 && significantMatchCount == 1) return b;
             }
         }
         return null;
