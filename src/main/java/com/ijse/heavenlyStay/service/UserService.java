@@ -8,5 +8,5 @@ import com.ijse.heavenlyStay.dto.UserDTO;
 public interface UserService {
     UserDTO getUserDetails(String username, String password);
     void saveUser(SignupRequestDTO signupDTO);
-    AuthResponseDTO authenticate(LoginRequestDTO loginDTO);
+    UserDTO authenticate(LoginRequestDTO loginDTO);
 }

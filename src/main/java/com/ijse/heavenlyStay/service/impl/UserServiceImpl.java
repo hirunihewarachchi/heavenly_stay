@@ -81,7 +81,7 @@ if (userRepository.findByUserName(signupDTO.getUserName()).isPresent()) {
     }
 
     @Override
-    public AuthResponseDTO authenticate(LoginRequestDTO loginDTO) {
+    public UserDTO authenticate(LoginRequestDTO loginDTO) {
         log.info("Executing method authenticate() for username: {}", loginDTO.getUsername());
         try {
             Optional<User> optionalUser = userRepository.findByUserName(loginDTO.getUsername());
@@ -103,10 +103,12 @@ if (userRepository.findByUserName(signupDTO.getUserName()).isPresent()) {
                 throw new CustomerException(403, "Role mismatch: Account is registered as " + user.getUserRoles());
             }
 
-            UserDTO userDTO = new UserDTO(user.getUserId(), user.getUserName(), user.getPassword(), user.getUserRoles());
-            String token = jwtUtil.generateToken(userDTO);
+            return new UserDTO(user.getUserId(), user.getUserName(), user.getPassword(), user.getUserRoles());
 
-            return new AuthResponseDTO(token, user.getUserId(), user.getUserName(), user.getEmail(), user.getUserRoles());
+//            UserDTO userDTO = new UserDTO(user.getUserId(), user.getUserName(), user.getPassword(), user.getUserRoles());
+//            String token = jwtUtil.generateToken(userDTO);
+
+//            return new AuthResponseDTO(token, user.getUserId(), user.getUserName(), user.getEmail(), user.getUserRoles());
         } catch (Exception e) {
             log.error("Error in authenticate() " + e.getMessage());
             throw e;

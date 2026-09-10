@@ -166,7 +166,6 @@
             success: function (response){
                 console.log("Login response:", response);
 
-                // Check if backend returned an error status inside the response body
                 if (!response || response.status !== 200) {
                     let errorMsg = response.message || "Username or password incorrect, try again.";
                     $('#alertMessage').text(errorMsg);
@@ -180,7 +179,6 @@
                 const userName = resData.username || resData.userName || username;
                 const role = resData.role || resData.userRoles || resData.userRole;
 
-                // If token is missing, treat as failed login
                 if (!token) {
                     $('#alertMessage').text("Username or password incorrect, try again.");
                     $('#alertBox').show();
@@ -192,7 +190,6 @@
                 localStorage.setItem("username", userName);
                 localStorage.setItem("userRole", role);
 
-                // Automatically check user role from AJAX response and select route
                 if (role === 'ADMIN') {
                   window.location.href = "admin-dashboard.html";
                 }
