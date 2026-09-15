@@ -320,6 +320,46 @@
     .modal-thumb-item.active, .modal-thumb-item:hover { border-color: var(--primary-gold); opacity: 1; transform: scale(1.03); }
 
     /* Chatbot Widget Modern styles included in widget below */
+
+    /* Favorite Heart Button on Card */
+    .btn-heart-fav {
+      position: absolute;
+      top: 0.85rem; left: 0.85rem;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(4px);
+      border: none; border-radius: 50%;
+      font-size: 1.05rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: transform 0.2s, background 0.2s;
+      z-index: 5;
+    }
+    .btn-heart-fav:hover { transform: scale(1.18); background: #fff; }
+    .btn-heart-fav.saved { background: rgba(239,68,68,0.12); }
+
+    /* My Favorites View Banner */
+    #favoritesViewBanner {
+      background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+      border: 1px solid #fecdd3;
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      max-width: 1120px;
+      margin: 0 auto 1.5rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    #favoritesViewBanner .fav-banner-text { font-weight: 700; color: #be123c; font-size: 0.95rem; }
+    #favoritesViewBanner .btn-back-all {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      color: #fff; border: none; padding: 0.6rem 1.2rem;
+      border-radius: 0.65rem; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    #favoritesViewBanner .btn-back-all:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
@@ -331,6 +371,7 @@
     </a>
     <div class="nav-actions">
       <button class="nav-btn btn-theme" onclick="document.body.classList.toggle('dark-mode')">🌙 Theme</button>
+      <button class="nav-btn" onclick="showMyFavoritesOnWebsite()" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1.5px solid #fca5a5; cursor:pointer;">❤️ My Favorites</button>
       <a href="login.html" class="nav-btn btn-login" id="loginNavBtn">Login</a>
       <a href="publish-ad.html" class="nav-btn btn-publish">+ Publish Boarding Ad</a>
     </div>
@@ -395,6 +436,13 @@
     <button class="btn-gps" onclick="findNearbyBoardings()">Detect GPS & Find Near Me</button>
   </div>
 
+  <div id="favoritesViewBanner">
+    <div class="fav-banner-text">
+      ❤️ Currently viewing your <strong>Saved Favorites (Wishlist)</strong> (<span id="favBannerCount">0 Saved</span>)
+    </div>
+    <button class="btn-back-all" onclick="loadApprovedBoardings()">🌐 Show All Boardings</button>
+  </div>
+
   <section class="section-container">
     <div class="section-title">
       <span id="sectionHeading">Published Boarding Ads Across Sri Lanka</span>
@@ -433,6 +481,7 @@
     let mapInstance = null;
     let currentLoadedBoardings = [];
     let userLocation = null;
+    let userFavoriteIds = new Set();
 
     const BACKEND_BASE_URL = "http://localhost:8080";
 
@@ -449,10 +498,37 @@
       if (username) {
         $('#loginNavBtn').html('👤 ' + username).attr('href', 'user-dashboard.html');
       }
-      loadApprovedBoardings();
+      loadUserFavoritesSet(function() {
+        loadApprovedBoardings();
+      });
     });
 
+    function loadUserFavoritesSet(callback) {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        if (callback) callback();
+        return;
+      }
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/favorites/user/" + userId,
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          const favs = response.body || [];
+          userFavoriteIds = new Set(favs.map(f => f.boarding ? f.boarding.boardingId : null).filter(Boolean));
+          if (callback) callback();
+        },
+        error: function() {
+          if (callback) callback();
+        }
+      });
+    }
+
     function loadApprovedBoardings() {
+      $('#favoritesViewBanner').hide();
       $.ajax({
         url: BACKEND_BASE_URL + "/v1/boardings",
         type: "GET",
@@ -462,10 +538,81 @@
         },
         success: function(response) {
           currentLoadedBoardings = response.body || [];
+          $('#sectionHeading').text("Published Boarding Ads Across Sri Lanka");
           renderBoardingGrid(currentLoadedBoardings);
         },
         error: function(response) {
           $('#boardingsGrid').html('<div style="grid-column:1/-1; text-align:center; padding:3rem; font-weight:600; color:var(--text-muted);">No published boardings found.</div>');
+        }
+      });
+    }
+
+    function showMyFavoritesOnWebsite() {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        alert("Please log in to view your Saved Favorites / Wishlist.");
+        window.location.href = 'login.html';
+        return;
+      }
+
+      $('#sectionHeading').text("⏳ Loading your Saved Favorites...");
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/favorites/user/" + userId,
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          const favList = response.body || [];
+          const boardings = favList.map(f => f.boarding).filter(Boolean);
+          userFavoriteIds = new Set(boardings.map(b => b.boardingId));
+          currentLoadedBoardings = boardings;
+
+          $('#favoritesViewBanner').css('display', 'flex');
+          $('#favBannerCount').text(`${boardings.length} Saved Boarding${boardings.length === 1 ? '' : 's'}`);
+          $('#sectionHeading').html(`❤️ My Saved Favorites / Wishlist (${boardings.length})`);
+          renderBoardingGrid(boardings);
+
+          const el = document.querySelector('.section-container');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        },
+        error: function() {
+          alert("Failed to load your favorites. Please ensure you are logged in.");
+        }
+      });
+    }
+
+    function quickToggleFav(event, boardingId) {
+      if (event) event.stopPropagation();
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        alert("Please log in to save boardings to your favorites!");
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const btn = $(`#favBtn_${boardingId}`);
+
+      $.ajax({
+        url: `${BACKEND_BASE_URL}/v1/favorites/toggle?userId=${userId}&boardingId=${boardingId}`,
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          const isFav = response.body ? response.body.isFavorite : false;
+          if (isFav) {
+            userFavoriteIds.add(boardingId);
+            btn.addClass('saved').html('❤️').attr('title', 'Remove from Favorites');
+          } else {
+            userFavoriteIds.delete(boardingId);
+            btn.removeClass('saved').html('🤍').attr('title', 'Save to Favorites');
+          }
+        },
+        error: function() {
+          alert("Failed to update favorite status.");
         }
       });
     }
@@ -506,6 +653,7 @@
     }
 
     function searchBoardings() {
+      $('#favoritesViewBanner').hide();
       let district = $('#districtFilter').val();
       let gender = $('#genderFilter').val();
       let maxRent = $('#maxRentFilter').val();
@@ -582,6 +730,7 @@
         const isShared = b.roomCategory === 'SHARED';
         const bedsPerRoom = b.bedsPerRoom || (isShared ? 2 : 1);
         const availBeds = (b.availableBeds !== undefined && b.availableBeds !== null) ? b.availableBeds : (b.availableRooms * bedsPerRoom);
+        const isFav = userFavoriteIds.has(b.boardingId);
 
         let capacityBadge = "";
         if (availBeds <= 0 || b.availableRooms <= 0) {
@@ -596,6 +745,9 @@
           <div class="boarding-card">
             <div class="card-img-wrapper" onclick="openImagePreview(${b.boardingId})">
               <img src="${coverUrl}" class="card-img" alt="${b.name}">
+              <button type="button" id="favBtn_${b.boardingId}" class="btn-heart-fav ${isFav ? 'saved' : ''}" onclick="quickToggleFav(event, ${b.boardingId})" title="${isFav ? 'Remove from Favorites' : 'Save to Favorites'}">
+                ${isFav ? '❤️' : '🤍'}
+              </button>
               <span class="card-badge">${b.genderPreference}</span>
               ${b.distanceKm ? `<span style="position:absolute; bottom:0.85rem; left:0.85rem; background:rgba(15,23,42,0.85); backdrop-filter:blur(4px); color:#fff; font-size:0.75rem; font-weight:600; padding:0.3rem 0.65rem; border-radius:0.5rem;">📍 ${b.distanceKm} km away</span>` : ''}
               <span class="photo-count-badge">📷 ${photoCount} Photo${photoCount > 1 ? 's' : ''}</span>

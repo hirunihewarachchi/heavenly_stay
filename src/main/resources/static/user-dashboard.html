@@ -1093,6 +1093,84 @@
         }
       });
     }
+
+    function loadUserFavorites() {
+      if (!userId) return;
+      $.ajax({
+        url: BACKEND_BASE_URL + "/v1/favorites/user/" + userId,
+        type: "GET",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function(response) {
+          const favList = response.body || [];
+          if (favList.length === 0) {
+            $('#favoritesGrid').html('<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted); font-weight:600;">You have no saved favorite boardings yet.<br>Browse boardings and click "Save to Favorites" to add them here!</div>');
+            return;
+          }
+
+          let html = "";
+          for (const fav of favList) {
+            const b = fav.boarding;
+            if (!b) continue;
+            const coverUrl = getFullImageUrl(b.coverImageUrl);
+            const isShared = b.roomCategory === 'SHARED';
+            const bedsPerRoom = b.bedsPerRoom || (isShared ? 2 : 1);
+            const availBeds = (b.availableBeds !== undefined && b.availableBeds !== null) ? b.availableBeds : (b.availableRooms * bedsPerRoom);
+
+            let capBadge = "";
+            if (availBeds <= 0 || b.availableRooms <= 0) {
+              capBadge = `<span style="color:#dc2626; font-weight:700;">❌ FULLY BOOKED</span>`;
+            } else if (isShared) {
+              capBadge = `<span style="color:#2563eb; font-weight:700;">🛏️ ${availBeds} Bed${availBeds > 1 ? 's' : ''} Available</span>`;
+            } else {
+              capBadge = `<span style="color:#16a34a; font-weight:700;">🚪 ${b.availableRooms} Room${b.availableRooms > 1 ? 's' : ''} Available</span>`;
+            }
+
+            html += `
+              <div class="my-boarding-card">
+                <div class="mb-img-wrapper">
+                  <img src="${coverUrl}" class="mb-img" alt="${b.name}">
+                  <span class="mb-status-badge mb-status-approved">SAVED ❤️</span>
+                </div>
+                <div class="mb-body">
+                  <div>
+                    <div class="mb-title">${b.name}</div>
+                    <div class="mb-location">📍 ${b.address}, ${b.district}</div>
+                    <div class="mb-rent">LKR ${b.monthlyRent ? b.monthlyRent.toLocaleString() : '0'} <span>/ mo</span></div>
+                    <div class="mb-capacity-box">${capBadge}</div>
+                  </div>
+                  <div class="mb-actions">
+                    <a href="boarding-details.html?id=${b.boardingId}" class="btn-edit-ad" style="text-decoration:none; text-align:center;">View Details</a>
+                    <button class="btn-delete-ad" onclick="removeFavoriteFromDash(${b.boardingId})" title="Remove from Favorites">💔 Remove</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+          $('#favoritesGrid').html(html);
+        },
+        error: function() {
+          $('#favoritesGrid').html('<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">Failed to load favorite boardings.</div>');
+        }
+      });
+    }
+
+    function removeFavoriteFromDash(boardingId) {
+      if (!userId) return;
+      $.ajax({
+        url: `${BACKEND_BASE_URL}/v1/favorites/toggle?userId=${userId}&boardingId=${boardingId}`,
+        type: "POST",
+        contentType: "application/json",
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem("JWT")
+        },
+        success: function() {
+          loadUserFavorites();
+        }
+      });
+    }
   </script>
 
   <!-- HeavenlyStay AI Chatbot Widget -->
