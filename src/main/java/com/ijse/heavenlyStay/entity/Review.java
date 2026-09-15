@@ -17,14 +17,8 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
-
-    @Column(nullable = false)
     private Integer rating; // 1 to 5
-
-    @Column(columnDefinition = "TEXT", nullable = false)
     private String comment;
-
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

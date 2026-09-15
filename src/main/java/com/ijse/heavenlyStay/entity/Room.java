@@ -18,14 +18,8 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-
-    @Column(nullable = false, length = 20)
     private String roomNumber;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal rent;
 
     @Enumerated(EnumType.STRING)

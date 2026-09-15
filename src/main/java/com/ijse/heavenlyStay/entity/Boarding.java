@@ -21,26 +21,12 @@ public class Boarding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardingId;
-
-    @Column(nullable = false, length = 200)
     private String name;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false, length = 300)
     private String address;
-
-    @Column(nullable = false, length = 100)
     private String district;
-
-    @Column(length = 100)
     private String province;
-
-    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal monthlyRent;
-
-    @Column(precision = 12, scale = 2)
     private BigDecimal keyMoney;
 
     @Enumerated(EnumType.STRING)
@@ -51,19 +37,10 @@ public class Boarding {
     @Column(nullable = false)
     private RoomCategory roomCategory = RoomCategory.SINGLE;
 
-    @Column(nullable = false)
     private Integer bedsPerRoom = 1;
-
-    @Column(nullable = false)
     private Integer totalRooms = 1;
-
-    @Column(nullable = false)
     private Integer availableRooms = 1;
-
-    @Column(nullable = false)
     private Integer totalBeds = 1;
-
-    @Column(nullable = false)
     private Integer availableBeds = 1;
 
     // GPS coordinates for 5km radius search
@@ -78,7 +55,6 @@ public class Boarding {
     private String coverImageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private BoardingStatus status = BoardingStatus.PENDING_APPROVAL;
 
     @Column(columnDefinition = "TEXT")

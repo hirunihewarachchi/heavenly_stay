@@ -19,11 +19,7 @@ public class LeaseAgreement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long leaseId;
-
-    @Column(nullable = false)
     private LocalDate startDate;
-
-    @Column(nullable = false)
     private LocalDate endDate;
 
     @Column(nullable = false, precision = 12, scale = 2)
@@ -31,8 +27,6 @@ public class LeaseAgreement {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal keyMoneyPaid;
-
-    @Column(columnDefinition = "TEXT")
     private String agreementTerms;
 
     @Enumerated(EnumType.STRING)

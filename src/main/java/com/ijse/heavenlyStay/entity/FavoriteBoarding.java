@@ -19,8 +19,6 @@ public class FavoriteBoarding {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long favoriteId;
-
-    @Column(updatable = false)
     private LocalDateTime savedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -17,17 +17,9 @@ public class BoardingReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
-
-    @Column(nullable = false, length = 150)
     private String reason;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false)
     private Boolean isResolved = false;
-
-    @Column(updatable = false)
     private LocalDateTime reportedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

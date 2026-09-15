@@ -19,14 +19,8 @@ public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long subscriptionId;
-
-    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal listingFee;
-
-    @Column(nullable = false)
     private LocalDateTime startDate;
-
-    @Column(nullable = false)
     private LocalDateTime expiryDate;
 
     @Enumerated(EnumType.STRING)

@@ -15,8 +15,6 @@ public class Facility {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long facilityId;
-
-    @Column(nullable = false, length = 150)
     private String facilityName;
 
     @ManyToOne(fetch = FetchType.LAZY)

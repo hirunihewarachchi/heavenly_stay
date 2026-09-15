@@ -15,11 +15,7 @@ public class BoardingImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
-
-    @Column(nullable = false, length = 500)
     private String imageUrl;
-
-    @Column(nullable = false)
     private Boolean isCover = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -27,7 +27,6 @@ public class Payment {
     @Column(precision = 12, scale = 2)
     private BigDecimal platformCommission;
 
-    @Column(nullable = false, unique = true, length = 100)
     private String transactionRef;
 
     @Enumerated(EnumType.STRING)

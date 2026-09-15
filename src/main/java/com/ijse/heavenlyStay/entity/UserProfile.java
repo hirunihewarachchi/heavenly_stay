@@ -16,16 +16,9 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long profileId;
 
-    @Column(length = 20)
     private String nic;
-
-    @Column(length = 300)
     private String address;
-
-    @Column(length = 500)
     private String profilePictureUrl;
-
-    @Column(length = 500)
     private String bio;
 
     @OneToOne
