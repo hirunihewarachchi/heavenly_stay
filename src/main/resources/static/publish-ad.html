@@ -26,6 +26,15 @@
       --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
       --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
       --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.14);
+
+      /* Compatibility Aliases for IDE and Legacy Custom Properties */
+      --primary-yellow: var(--primary-gold);
+      --primary-yellow-hover: var(--primary-gold-hover);
+      --deep-blue: var(--royal-blue);
+      --bg-color: var(--bg-surface);
+      --card-bg: var(--card-surface);
+      --text-color: var(--text-main);
+      --shadow: var(--shadow-md);
     }
     body.dark-mode {
       --bg-surface: #090d16;
@@ -36,6 +45,11 @@
       --input-bg: #0f172a;
       --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
       --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+
+      /* Dark Mode Compatibility Aliases */
+      --bg-color: var(--bg-surface);
+      --card-bg: var(--card-surface);
+      --text-color: var(--text-main);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     body { background: var(--bg-surface); color: var(--text-main); transition: background 0.3s, color 0.3s; }
