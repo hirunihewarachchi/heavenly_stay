@@ -3,147 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Dashboard - HeavenlyStay</title>
+  <title>User Dashboard — HeavenlyStay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
     :root {
-      --primary-yellow: #f59e0b;
-      --primary-yellow-hover: #d97706;
-      --deep-blue: #1e3a8a;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-color: #1e293b;
+      --primary-gold: #f59e0b;
+      --primary-gold-hover: #d97706;
+      --deep-navy: #0f172a;
+      --royal-blue: #1e3a8a;
+      --accent-blue: #2563eb;
+      --bg-surface: #f8fafc;
+      --card-surface: #ffffff;
+      --text-main: #0f172a;
       --text-muted: #64748b;
-      --border-color: #cbd5e1;
+      --border-color: #e2e8f0;
       --input-bg: #f8fafc;
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.14);
     }
     body.dark-mode {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-color: #f8fafc;
+      --bg-surface: #090d16;
+      --card-surface: #1e293b;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --border-color: #334155;
       --input-bg: #0f172a;
+      --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg-color); color: var(--text-color); }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    body { background: var(--bg-surface); color: var(--text-main); transition: background 0.3s, color 0.3s; }
 
     header {
-      background: var(--deep-blue);
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(12px);
       color: #fff;
-      padding: 1rem 2rem;
+      padding: 1rem 2.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 2px solid var(--primary-gold);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);
     }
-    .logo { color: var(--primary-yellow); font-size: 1.5rem; font-weight: 800; text-decoration: none; }
-    .nav-links { display: flex; gap: 1rem; align-items: center; }
-    .nav-links a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .logo {
+      color: #fff; font-size: 1.4rem; font-weight: 800; text-decoration: none;
+      display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--primary-gold); }
+    .logo-icon {
+      width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-gold), #ea580c);
+      border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+    }
+    .nav-links { display: flex; gap: 0.85rem; align-items: center; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--primary-gold); }
 
-    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+    .container { max-width: 1240px; margin: 2.5rem auto; padding: 0 1.5rem; }
 
     /* Summary Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1.25rem;
-      margin-bottom: 2rem;
+      margin-bottom: 2.25rem;
     }
     .stat-card {
-      background: var(--card-bg);
-      padding: 1.25rem;
-      border-radius: 0.75rem;
-      box-shadow: var(--shadow);
+      background: var(--card-surface);
+      padding: 1.35rem 1.5rem;
+      border-radius: 1.15rem;
+      box-shadow: var(--shadow-md);
       border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 1.15rem;
+      transition: transform 0.2s;
     }
+    .stat-card:hover { transform: translateY(-2px); }
     .stat-icon {
-      font-size: 2rem;
+      font-size: 1.75rem;
       background: rgba(245, 158, 11, 0.15);
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0.5rem;
-      color: var(--primary-yellow);
+      border-radius: 0.85rem;
+      color: var(--primary-gold);
+      flex-shrink: 0;
     }
-    .stat-val { font-size: 1.5rem; font-weight: 800; color: var(--deep-blue); }
-    .stat-lbl { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+    .stat-val { font-size: 1.65rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+    .stat-lbl { font-size: 0.825rem; color: var(--text-muted); font-weight: 600; margin-top: 0.15rem; }
 
-    .main-card { background: var(--card-bg); border-radius: 1rem; padding: 1.75rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); margin-bottom: 2rem; }
+    .main-card {
+      background: var(--card-surface);
+      border-radius: 1.25rem;
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 2.5rem;
+    }
 
-    .tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.75rem; overflow-x: auto; padding-bottom: 2px; }
+    .tabs {
+      display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color);
+      margin-bottom: 2rem; overflow-x: auto; padding-bottom: 4px;
+    }
     .tab-btn {
-      padding: 0.75rem 1.25rem;
+      padding: 0.75rem 1.35rem;
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       border-bottom: 3px solid transparent;
       white-space: nowrap;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      border-radius: 0.5rem 0.5rem 0 0;
+      transition: all 0.2s;
     }
-    .tab-btn.active { color: var(--deep-blue); border-bottom-color: var(--primary-yellow); font-weight: 800; }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--primary-gold); font-weight: 800; background: rgba(37, 99, 235, 0.05); }
 
     /* Published Boardings Cards Grid */
     .my-boardings-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-      gap: 1.5rem;
+      gap: 1.75rem;
     }
     .my-boarding-card {
-      background: var(--card-bg);
-      border-radius: 0.85rem;
+      background: var(--card-surface);
+      border-radius: 1.15rem;
       border: 1px solid var(--border-color);
       overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .mb-img-wrapper { position: relative; height: 180px; }
+    .my-boarding-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .mb-img-wrapper { position: relative; height: 190px; }
     .mb-img { width: 100%; height: 100%; object-fit: cover; }
     .mb-status-badge {
       position: absolute;
-      top: 0.75rem; right: 0.75rem;
-      padding: 0.25rem 0.6rem;
+      top: 0.85rem; right: 0.85rem;
+      padding: 0.35rem 0.75rem;
       border-radius: 9999px;
       font-size: 0.75rem;
       font-weight: 800;
+      letter-spacing: 0.03em;
     }
-    .mb-status-approved { background: #dcfce7; color: #15803d; }
-    .mb-status-pending { background: #fef3c7; color: #b45309; }
+    .mb-status-approved { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .mb-status-pending { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
 
-    .mb-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .mb-title { font-size: 1.1rem; font-weight: 700; color: var(--text-color); margin-bottom: 0.3rem; }
-    .mb-location { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-    .mb-rent { font-size: 1.2rem; font-weight: 800; color: var(--deep-blue); }
+    .mb-body { padding: 1.35rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .mb-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.3rem; }
+    .mb-location { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; font-weight: 500; }
+    .mb-rent { font-size: 1.25rem; font-weight: 800; color: var(--accent-blue); }
 
     .mb-capacity-box {
-      background: var(--input-bg);
+      background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      padding: 0.6rem 0.85rem;
-      border-radius: 0.5rem;
-      margin: 0.75rem 0;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.65rem;
+      margin: 0.85rem 0;
       font-size: 0.85rem;
+      font-weight: 600;
     }
 
-    .mb-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .mb-actions { display: flex; gap: 0.6rem; margin-top: 0.85rem; }
     .btn-edit-ad {
       flex: 1;
-      background: var(--primary-yellow);
-      color: #000;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
       border: none;
-      padding: 0.55rem 0.85rem;
-      border-radius: 0.375rem;
-      font-weight: 700;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.6rem;
+      font-weight: 800;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.825rem;
       text-align: center;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
     }
     .btn-delete-ad {
       background: #fee2e2;
@@ -214,12 +256,15 @@
 <body>
 
   <header>
-    <a href="heavely-web-site.html" class="logo">🏠 HeavenlyStay</a>
+    <a href="heavely-web-site.html" class="logo">
+      <div class="logo-icon">🏠</div>
+      Heavenly<span>Stay</span>
+    </a>
     <div class="nav-links">
       <a href="heavely-web-site.html">Explore Boardings</a>
-      <a href="publish-ad.html" style="background:var(--primary-yellow); color:#000; padding:0.4rem 0.8rem; border-radius:0.4rem; font-weight:700;">+ Publish Boarding Ad</a>
-      <button onclick="document.body.classList.toggle('dark-mode')" style="background:transparent; border:1px solid #fff; color:#fff; padding:0.3rem 0.7rem; border-radius:0.5rem; cursor:pointer;">🌙 Theme</button>
-      <button onclick="localStorage.clear(); window.location.href='login.html'" style="background:#dc2626; color:#fff; border:none; padding:0.3rem 0.7rem; border-radius:0.5rem; cursor:pointer;">Logout</button>
+      <a href="publish-ad.html" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color:#0f172a; padding:0.5rem 1rem; border-radius:0.65rem; font-weight:800; box-shadow:0 4px 14px rgba(245,158,11,0.3);">+ Publish Boarding Ad</a>
+      <button onclick="document.body.classList.toggle('dark-mode')" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:0.45rem 0.9rem; border-radius:0.65rem; cursor:pointer; font-weight:600; font-size:0.85rem;">🌙 Theme</button>
+      <button onclick="localStorage.clear(); window.location.href='login.html'" style="background:#dc2626; color:#fff; border:none; padding:0.45rem 0.9rem; border-radius:0.65rem; cursor:pointer; font-weight:700; font-size:0.85rem; box-shadow:0 4px 12px rgba(220,38,38,0.3);">Logout</button>
     </div>
   </header>
 

@@ -3,30 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - HeavenlyStay</title>
+  <title>Login — HeavenlyStay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      --bg-gradient: radial-gradient(circle at 10% 20%, #0f172a 0%, #1e3a8a 90%);
       --card-bg: #ffffff;
-      --text-color: #1e293b;
+      --text-main: #0f172a;
       --text-muted: #64748b;
-      --primary-yellow: #f59e0b;
-      --primary-yellow-hover: #d97706;
-      --deep-blue: #1e3a8a;
+      --primary-gold: #f59e0b;
+      --primary-gold-hover: #d97706;
+      --primary-blue: #1e3a8a;
+      --accent-blue: #2563eb;
       --border-color: #e2e8f0;
       --input-bg: #f8fafc;
-      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
     }
     body.dark-mode {
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-gradient: radial-gradient(circle at 10% 20%, #020617 0%, #0f172a 90%);
       --card-bg: #1e293b;
-      --text-color: #f8fafc;
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --border-color: #334155;
       --input-bg: #0f172a;
+      --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     body {
       min-height: 100vh;
       background: var(--bg-gradient);
@@ -34,59 +39,95 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
+      position: relative;
     }
     .theme-toggle {
       position: absolute;
       top: 1.5rem;
       right: 1.5rem;
-      background: var(--card-bg);
-      border: 2px solid var(--primary-yellow);
-      color: var(--text-color);
-      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.5rem 1.1rem;
       border-radius: 9999px;
       cursor: pointer;
       font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
     }
+    .theme-toggle:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
+
     .login-card {
       background: var(--card-bg);
-      color: var(--text-color);
+      color: var(--text-main);
       width: 100%;
       max-width: 440px;
-      padding: 2.5rem;
+      padding: 2.75rem 2.25rem;
       border-radius: 1.5rem;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      animation: fadeIn 0.4s ease-out;
     }
-    .brand { text-align: center; margin-bottom: 1.5rem; }
-    .brand h1 { color: var(--primary-yellow); font-size: 2rem; font-weight: 800; }
-    .brand p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    .form-group { margin-bottom: 1.25rem; }
-    .form-group label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .brand { text-align: center; margin-bottom: 2rem; }
+    .brand-logo-icon {
+      width: 54px; height: 54px;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #f59e0b;
+      border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem;
+      margin: 0 auto 0.85rem;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+    .brand h1 { color: var(--text-main); font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+    .brand h1 span { color: var(--primary-gold); }
+    .brand p { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.35rem; }
+
+    .form-group { margin-bottom: 1.35rem; }
+    .form-group label { display: block; font-size: 0.825rem; font-weight: 700; margin-bottom: 0.45rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em; }
+    .input-wrapper { position: relative; }
     .form-input {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.85rem 1.1rem;
       background: var(--input-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 0.5rem;
-      color: var(--text-color);
-      font-size: 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 0.85rem;
+      color: var(--text-main);
+      font-size: 0.95rem;
       outline: none;
+      transition: all 0.2s;
     }
-    .form-input:focus { border-color: var(--primary-yellow); }
+    .form-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      background: var(--card-bg);
+    }
 
     .btn-submit {
       width: 100%;
-      padding: 0.85rem;
-      background: var(--primary-yellow);
-      color: #000;
-      font-weight: 700;
-      font-size: 1rem;
+      padding: 0.95rem;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 0.95rem;
       border: none;
-      border-radius: 0.5rem;
+      border-radius: 0.85rem;
       cursor: pointer;
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+      transition: all 0.25s;
     }
-    .btn-submit:hover { background: var(--primary-yellow-hover); color: #fff; }
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 25px rgba(245, 158, 11, 0.45);
+      color: #000;
+    }
 
     .alert-box {
       display: none;
@@ -94,9 +135,9 @@
       border: 1px solid #fca5a5;
       color: #991b1b;
       padding: 1rem;
-      border-radius: 0.5rem;
+      border-radius: 0.85rem;
       margin-bottom: 1.25rem;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       text-align: center;
     }
     .btn-alert-signup {
@@ -104,14 +145,16 @@
       color: #fff;
       border: none;
       padding: 0.5rem 1rem;
-      border-radius: 0.375rem;
-      font-weight: 600;
+      border-radius: 0.5rem;
+      font-weight: 700;
       cursor: pointer;
-      margin-top: 0.5rem;
+      margin-top: 0.65rem;
+      font-size: 0.8rem;
     }
 
-    .footer-links { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted); }
-    .footer-links a { color: var(--primary-yellow); text-decoration: none; font-weight: 600; }
+    .footer-links { text-align: center; margin-top: 1.75rem; font-size: 0.875rem; color: var(--text-muted); }
+    .footer-links a { color: var(--accent-blue); text-decoration: none; font-weight: 700; }
+    .footer-links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -120,8 +163,9 @@
 
   <div class="login-card">
     <div class="brand">
-      <h1>🏠 HeavenlyStay</h1>
-      <p>Login to your Account</p>
+      <div class="brand-logo-icon">🏠</div>
+      <h1>Heavenly<span>Stay</span></h1>
+      <p>Sign in to manage boardings & bookings</p>
     </div>
 
     <!-- Alert Box for Unregistered / Invalid Credentials -->
@@ -132,22 +176,25 @@
 
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       
-      <!-- Username & Password inputs only (No role switch button) -->
       <div class="form-group">
         <label for="username">Username</label>
-        <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
+        <div class="input-wrapper">
+          <input type="text" id="username" class="form-input" placeholder="Enter your username" required>
+        </div>
       </div>
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+        <div class="input-wrapper">
+          <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+        </div>
       </div>
 
-      <button type="submit" class="btn-submit">Login</button>
+      <button type="submit" class="btn-submit">Sign In to HeavenlyStay</button>
     </form>
 
     <div class="footer-links">
-      Don't have an account? <a href="signup.html">Sign Up Now</a>
+      Don't have an account? <a href="signup.html">Create Account</a>
     </div>
   </div>
 
