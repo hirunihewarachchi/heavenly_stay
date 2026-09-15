@@ -18,9 +18,6 @@ public interface BoardingRepository extends JpaRepository<Boarding, Long> {
     @Query("SELECT b FROM Boarding b WHERE b.owner.userId = :ownerId ORDER BY b.createdAt DESC")
     List<Boarding> findByOwnerUserId(@Param("ownerId") Long ownerId);
 
-    @Query("SELECT b FROM Boarding b WHERE b.status = 'APPROVED' AND LOWER(b.district) = LOWER(:district)")
-    List<Boarding> findApprovedByDistrict(@Param("district") String district);
-
     @Query("SELECT b FROM Boarding b WHERE b.status = 'APPROVED' AND " +
            "(:district IS NULL OR LOWER(b.district) LIKE LOWER(CONCAT('%', :district, '%'))) AND " +
            "(:gender IS NULL OR b.genderPreference = :gender OR b.genderPreference = 'ANY') AND " +

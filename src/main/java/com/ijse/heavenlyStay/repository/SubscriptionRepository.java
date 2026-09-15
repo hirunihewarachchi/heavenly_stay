@@ -14,7 +14,4 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     @Query("SELECT s FROM Subscription s WHERE s.boarding.boardingId = :boardingId")
     Optional<Subscription> findByBoardingId(@Param("boardingId") Long boardingId);
-
-    @Query("SELECT s FROM Subscription s WHERE s.status = :status AND s.expiryDate < :now")
-    List<Subscription> findExpiredSubscriptions(@Param("status") SubcriptionStatus status, @Param("now") LocalDateTime now);
 }

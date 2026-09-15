@@ -12,6 +12,4 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
     @Query("SELECT f FROM Facility f WHERE f.boarding.boardingId = :boardingId")
     List<Facility> findByBoardingId(@Param("boardingId") Long boardingId);
 
-    @Query("DELETE FROM Facility f WHERE f.boarding.boardingId = :boardingId")
-    void deleteByBoardingId(@Param("boardingId") Long boardingId);
 }

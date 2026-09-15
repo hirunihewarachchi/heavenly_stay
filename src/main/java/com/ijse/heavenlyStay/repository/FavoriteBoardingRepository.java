@@ -18,5 +18,4 @@ public interface FavoriteBoardingRepository extends JpaRepository<FavoriteBoardi
 
     boolean existsByUserUserIdAndBoardingBoardingId(Long userId, Long boardingId);
 
-    void deleteByUserUserIdAndBoardingBoardingId(Long userId, Long boardingId);
 }

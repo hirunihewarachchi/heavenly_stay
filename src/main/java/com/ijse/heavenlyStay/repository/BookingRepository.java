@@ -16,13 +16,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.boarding.owner.userId = :ownerId ORDER BY b.createdAt DESC")
     List<Booking> findByOwnerUserId(@Param("ownerId") Long ownerId);
 
-    @Query("SELECT b FROM Booking b WHERE b.boarding.boardingId = :boardingId ORDER BY b.createdAt DESC")
-    List<Booking> findByBoardingId(@Param("boardingId") Long boardingId);
-
-    @Query("SELECT b FROM Booking b WHERE b.status = :status ORDER BY b.createdAt DESC")
-    List<Booking> findByStatus(@Param("status") BookingStatus status);
-
-    @Query("SELECT COUNT(b) FROM Booking b WHERE b.status = :status")
+   @Query("SELECT COUNT(b) FROM Booking b WHERE b.status = :status")
     long countByStatus(@Param("status") BookingStatus status);
 
     @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.seeker.userId = :seekerId AND b.boarding.boardingId = :boardingId AND (b.status = 'PAID' OR b.status = 'APPROVED')")

@@ -21,16 +21,16 @@ public class UserController {
         return new CommonResponse(200, "User Saved Successfully");
     }
 
-    @PostMapping("/login")
-    public CommonResponse loginUser(@RequestBody LoginRequestDTO loginDTO) {
-        UserDTO userDTO = userService.authenticate(loginDTO);
-        String token = jwtUtil.generateToken(userDTO);
-
-        UserDataDTO userDataDTO = new UserDataDTO();
-        userDataDTO.setUserId(userDTO.getUserId());
-        userDataDTO.setToken(token);
-        userDataDTO.setUserRoles(userDTO.getUserRoles());
-
-        return new CommonResponse(200, userDataDTO, "Login Successful");
-    }
+//    @PostMapping("/login")
+//    public CommonResponse loginUser(@RequestBody LoginRequestDTO loginDTO) {
+//        UserDTO userDTO = userService.authenticate(loginDTO);
+//        String token = jwtUtil.generateToken(userDTO);
+//
+//        UserDataDTO userDataDTO = new UserDataDTO();
+//        userDataDTO.setUserId(userDTO.getUserId());
+//        userDataDTO.setToken(token);
+//        userDataDTO.setUserRoles(userDTO.getUserRoles());
+//
+//        return new CommonResponse(200, userDataDTO, "Login Successful");
+//    }
 }

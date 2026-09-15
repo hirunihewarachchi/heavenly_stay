@@ -7,6 +7,7 @@ import com.ijse.heavenlyStay.entity.Boarding;
 import com.ijse.heavenlyStay.enumeration.BoardingStatus;
 import com.ijse.heavenlyStay.enumeration.RoomCategory;
 import com.ijse.heavenlyStay.repository.BoardingRepository;
+import com.ijse.heavenlyStay.repository.ReviewRepository;
 import com.ijse.heavenlyStay.service.BoardingService;
 import com.ijse.heavenlyStay.service.ChatbotService;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,25 @@ public class ChatbotServiceImpl implements ChatbotService {
 
     private final BoardingRepository boardingRepository;
     private final BoardingService boardingService;
+    private final ReviewRepository reviewRepository;
 
-    private static final Set<String> OUT_OF_SCOPE_KEYWORDS = Set.of(
-            "python", "java code", "weather", "recipe", "who is", "president", "capital of",
-            "movie", "football", "cricket", "calculator", "joke", "story", "song", "lyrics",
-            "politics", "stock market", "crypto", "bitcoin", "translate", "write an essay"
+    // Domain-specific keywords: a message must contain at least one of these to be answered.
+    private static final Set<String> DOMAIN_KEYWORDS = Set.of(
+            "boarding", "room", "stay", "rent", "heavenly", "heavenlystay",
+            "key money", "keymoney", "location", "colombo", "kandy", "galle",
+            "matara", "kurunegala", "gampaha", "jaffna", "panadura", "moratuwa",
+            "kelaniya", "malabe", "nugegoda", "battaramulla", "maharagama",
+            "horana", "negombo", "ratnapura", "badulla",
+            "bed", "hostel", "place", "fee", "publish", "deposit", "booking",
+            "available", "vacancy", "price", "cost", "cheap", "affordable",
+            "single", "shared", "listing", "commission", "how many", "district",
+            "province", "address", "hi", "hello", "hey",
+            "lowest", "highest", "minimum", "maximum", "most expensive",
+            "most reviewed", "most popular", "popular", "top reviewed", "best reviewed"
     );
+
+    private static final String OFF_TOPIC_REPLY =
+            "I am the HeavenlyStay chat agent. I can only answer the questions related to HeavenlyStay. Thank you.";
 
     @Override
     public ChatResponseDTO processQuery(ChatRequestDTO request) {
@@ -55,17 +69,11 @@ public class ChatbotServiceImpl implements ChatbotService {
                 );
             }
 
-            // 1. Out-of-Scope check
-            boolean isOutOfScope = OUT_OF_SCOPE_KEYWORDS.stream().anyMatch(msg::contains);
-            boolean containsDomainTerm = msg.contains("boarding") || msg.contains("room") || msg.contains("stay") ||
-                    msg.contains("rent") || msg.contains("heavenly") || msg.contains("key money") ||
-                    msg.contains("location") || msg.contains("colombo") || msg.contains("kandy") ||
-                    msg.contains("galle") || msg.contains("bed") || msg.contains("hostel") || msg.contains("place") ||
-                    msg.contains("fee") || msg.contains("publish") || msg.contains("deposit");
-
-            if (isOutOfScope && !containsDomainTerm) {
+            // 1. Domain intent check — reject anything that has no HeavenlyStay-related keyword.
+            boolean containsDomainTerm = DOMAIN_KEYWORDS.stream().anyMatch(msg::contains);
+            if (!containsDomainTerm) {
                 return new ChatResponseDTO(
-                        "I can only answer questions related to HeavenlyStay boardings, pricing, location, availability, and booking rules from our database.",
+                        OFF_TOPIC_REPLY,
                         "REJECTED_OFFTOPIC",
                         defaultPills,
                         Collections.emptyList()
@@ -142,6 +150,87 @@ public class ChatbotServiceImpl implements ChatbotService {
                 }
             }
 
+            // 3b. Lowest monthly rent (same as cheapest but triggered by "lowest monthly rent" phrasing too)
+            if (msg.contains("lowest monthly rent") || msg.contains("minimum rent") || msg.contains("cheapest rent")) {
+                String loc = extractLocationName(msg);
+                List<Boarding> candidates = allApproved.stream()
+                        .filter(b -> loc == null || (b.getDistrict() != null && b.getDistrict().toLowerCase().contains(loc)))
+                        .filter(b -> b.getMonthlyRent() != null)
+                        .sorted(Comparator.comparing(Boarding::getMonthlyRent))
+                        .limit(5)
+                        .collect(Collectors.toList());
+                if (!candidates.isEmpty()) {
+                    Boarding lowest = candidates.get(0);
+                    String locStr = loc != null ? " in **" + capitalize(loc) + "**" : "";
+                    List<BoardingDTO> dtos = candidates.stream()
+                            .map(b -> boardingService.getBoardingById(b.getBoardingId())).toList();
+                    return new ChatResponseDTO(
+                            "The lowest monthly rent" + locStr + " starts from **LKR " + lowest.getMonthlyRent().stripTrailingZeros().toPlainString() + "/month** at **" + lowest.getName() + "**, " + lowest.getDistrict() + ". Here are the top affordable options:",
+                            "RENT_INFO",
+                            defaultPills,
+                            dtos
+                    );
+                }
+            }
+
+            // 3c. Highest monthly rent
+            if (msg.contains("highest monthly rent") || msg.contains("maximum rent") || msg.contains("most expensive") || msg.contains("highest rent") || msg.contains("highest price")) {
+                String loc = extractLocationName(msg);
+                List<Boarding> candidates = allApproved.stream()
+                        .filter(b -> loc == null || (b.getDistrict() != null && b.getDistrict().toLowerCase().contains(loc)))
+                        .filter(b -> b.getMonthlyRent() != null)
+                        .sorted(Comparator.comparing(Boarding::getMonthlyRent).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList());
+                if (!candidates.isEmpty()) {
+                    Boarding highest = candidates.get(0);
+                    String locStr = loc != null ? " in **" + capitalize(loc) + "**" : "";
+                    List<BoardingDTO> dtos = candidates.stream()
+                            .map(b -> boardingService.getBoardingById(b.getBoardingId())).toList();
+                    return new ChatResponseDTO(
+                            "The highest monthly rent" + locStr + " goes up to **LKR " + highest.getMonthlyRent().stripTrailingZeros().toPlainString() + "/month** at **" + highest.getName() + "**, " + highest.getDistrict() + ". Here are the premium options:",
+                            "RENT_INFO",
+                            defaultPills,
+                            dtos
+                    );
+                }
+            }
+
+            // 3d. Most reviewed boardings
+            if (msg.contains("most reviewed") || msg.contains("most popular") || msg.contains("top reviewed") || msg.contains("best reviewed") || msg.contains("popular boarding")) {
+                String loc = extractLocationName(msg);
+                // Get boarding IDs ordered by review count from DB
+                List<Object[]> reviewCounts = reviewRepository.findBoardingIdsByReviewCountDesc();
+                // Build a map of boardingId -> approved boarding
+                Map<Long, Boarding> approvedMap = allApproved.stream()
+                        .collect(Collectors.toMap(Boarding::getBoardingId, b -> b));
+                // Pick the top 5 approved boardings that match the location filter
+                List<Boarding> topReviewed = reviewCounts.stream()
+                        .map(row -> approvedMap.get((Long) row[0]))
+                        .filter(Objects::nonNull)
+                        .filter(b -> loc == null || (b.getDistrict() != null && b.getDistrict().toLowerCase().contains(loc)))
+                        .limit(5)
+                        .collect(Collectors.toList());
+                if (!topReviewed.isEmpty()) {
+                    String locStr = loc != null ? " in **" + capitalize(loc) + "**" : "";
+                    List<BoardingDTO> dtos = topReviewed.stream()
+                            .map(b -> boardingService.getBoardingById(b.getBoardingId())).toList();
+                    return new ChatResponseDTO(
+                            "Here are the most reviewed boarding places" + locStr + " on HeavenlyStay:",
+                            "REVIEW_INFO",
+                            defaultPills,
+                            dtos
+                    );
+                } else {
+                    return new ChatResponseDTO(
+                            "There are no reviewed boarding places" + (loc != null ? " in **" + capitalize(loc) + "**" : "") + " yet.",
+                            "REVIEW_INFO",
+                            defaultPills,
+                            Collections.emptyList()
+                    );
+                }
+            }
+
             // 4. Listing Fee / Publishing Fee Question
             if ((msg.contains("listing fee") || msg.contains("publish") || msg.contains("ad fee") || msg.contains("cost to post")) && !msg.contains("key money")) {
                 return new ChatResponseDTO(
@@ -187,7 +276,8 @@ public class ChatbotServiceImpl implements ChatbotService {
                 );
             }
 
-            // 8. General Search (Location / Budget / Room Type filtering)
+            // 8. General Search — directly answer based on what the user asked.
+            // Detect filters from message: location, budget, room type, availability.
             BigDecimal maxRent = extractMaxRent(msg);
 
             final RoomCategory reqCategory;
@@ -199,16 +289,20 @@ public class ChatbotServiceImpl implements ChatbotService {
                 reqCategory = null;
             }
 
+            final boolean wantsAvailable = msg.contains("available") || msg.contains("vacancy") || msg.contains("vacant");
             final BigDecimal maxBudget = maxRent;
             final String targetLoc = extractLocationName(msg);
 
             List<Boarding> filtered = allApproved.stream().filter(b -> {
+                // Filter by budget
                 if (maxBudget != null && b.getMonthlyRent() != null) {
                     if (b.getMonthlyRent().compareTo(maxBudget) > 0) return false;
                 }
+                // Filter by room category
                 if (reqCategory != null && b.getRoomCategory() != reqCategory) {
                     return false;
                 }
+                // Filter by location
                 if (targetLoc != null) {
                     boolean matchDistrict = b.getDistrict() != null && b.getDistrict().toLowerCase().contains(targetLoc);
                     boolean matchProvince = b.getProvince() != null && b.getProvince().toLowerCase().contains(targetLoc);
@@ -216,31 +310,52 @@ public class ChatbotServiceImpl implements ChatbotService {
                     boolean matchName = b.getName() != null && b.getName().toLowerCase().contains(targetLoc);
                     if (!matchDistrict && !matchProvince && !matchAddress && !matchName) return false;
                 }
+                // Filter by availability if user asked for it
+                if (wantsAvailable) {
+                    int beds = b.getAvailableBeds() != null ? b.getAvailableBeds() : 0;
+                    int rooms = b.getAvailableRooms() != null ? b.getAvailableRooms() : 0;
+                    if (beds <= 0 && rooms <= 0) return false;
+                }
                 return true;
-            }).collect(Collectors.toList());
+            })
+            // Sort by monthly rent ascending so cheapest come first
+            .sorted(Comparator.comparing(b -> b.getMonthlyRent() != null ? b.getMonthlyRent() : BigDecimal.valueOf(Long.MAX_VALUE)))
+            .collect(Collectors.toList());
 
+            int totalFound = filtered.size();
+            // Show top 5
             List<BoardingDTO> dtoList = filtered.stream()
+                    .limit(5)
                     .map(b -> boardingService.getBoardingById(b.getBoardingId()))
                     .toList();
 
             if (dtoList.isEmpty()) {
-                StringBuilder noMatch = new StringBuilder("No approved boardings found");
+                StringBuilder noMatch = new StringBuilder("I couldn't find any boarding places");
                 if (targetLoc != null) noMatch.append(" in **").append(capitalize(targetLoc)).append("**");
                 if (maxRent != null) noMatch.append(" under **LKR ").append(maxRent.toPlainString()).append("**");
-                noMatch.append(" in our database.");
+                if (reqCategory != null) noMatch.append(" with a **").append(reqCategory.name().toLowerCase()).append(" room**");
+                if (wantsAvailable) noMatch.append(" with available beds/rooms");
+                noMatch.append(". You may try a different location or budget.");
                 return new ChatResponseDTO(noMatch.toString(), "BOARDING_SEARCH", defaultPills, Collections.emptyList());
             }
 
+            // Build a natural human-language reply
             StringBuilder reply = new StringBuilder();
-            if (targetLoc != null && maxRent != null) {
-                reply.append("Found **").append(dtoList.size()).append(" boarding(s)** in **").append(capitalize(targetLoc)).append("** under **LKR ").append(maxRent.toPlainString()).append("**:");
-            } else if (targetLoc != null) {
-                reply.append("Found **").append(dtoList.size()).append(" boarding(s)** in **").append(capitalize(targetLoc)).append("**:");
-            } else if (maxRent != null) {
-                reply.append("Found **").append(dtoList.size()).append(" boarding(s)** under **LKR ").append(maxRent.toPlainString()).append("**:");
+            if (wantsAvailable) {
+                reply.append("Good news! I found ");
             } else {
-                reply.append("Found **").append(dtoList.size()).append(" boarding(s)** matching your query:");
+                reply.append("Here are ");
             }
+            if (totalFound > 5) {
+                reply.append("the top **5 out of ").append(totalFound).append("** boarding place(s)");
+            } else {
+                reply.append("**").append(totalFound).append("** boarding place(s)");
+            }
+            if (targetLoc != null) reply.append(" in **").append(capitalize(targetLoc)).append("**");
+            if (reqCategory != null) reply.append(" with **").append(reqCategory.name().toLowerCase()).append(" rooms**");
+            if (maxRent != null) reply.append(" under **LKR ").append(maxRent.toPlainString()).append("**");
+            if (wantsAvailable) reply.append(" that have available space");
+            reply.append(", sorted by lowest rent:");
 
             return new ChatResponseDTO(reply.toString(), "BOARDING_SEARCH", defaultPills, dtoList);
         } catch (Exception e) {

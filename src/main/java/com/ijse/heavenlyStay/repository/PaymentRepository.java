@@ -15,12 +15,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p FROM Payment p WHERE p.payer.userId = :payerId ORDER BY p.paymentDate DESC")
     List<Payment> findByPayerUserId(@Param("payerId") Long payerId);
 
-    @Query("SELECT p FROM Payment p WHERE p.paymentType = :type AND p.paymentStatus = :status")
-    List<Payment> findByTypeAndStatus(@Param("type") PaymentType type, @Param("status") PaymentStatus status);
-
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'SUCCESS'")
-    BigDecimal sumTotalSuccessfulPayments();
-
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentType = com.ijse.heavenlyStay.enumeration.PaymentType.LISTING_FEE AND p.paymentStatus = com.ijse.heavenlyStay.enumeration.PaymentStatus.SUCCESS")
     BigDecimal sumTotalListingRevenue();
 
