@@ -37,6 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/v1/test/login", "/login/auth", "/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/v1/test/users").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/v1/admin/pending-boardings").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/v1/admin/approve-boardings/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/v1/admin/reject-boarding/{id}").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
